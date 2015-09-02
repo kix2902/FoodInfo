@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Food Info</string>
+    <string name="dialog_prefill" />
+    <string name="dialog_hint">Name</string>
+    <string name="dialog_content">Type the name of the food to search</string>
+    <string name="dialog_title">Search</string>
+    <string name="label_selector">Select product</string>
 </resources>
