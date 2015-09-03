@@ -1,15 +1,16 @@
 package es.kix2902.foodinfo;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -48,8 +49,10 @@ public class SelectorActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         loading = (ProgressBar) findViewById(R.id.loading);
+
         recycler = (RecyclerView) findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
+        recycler.addItemDecoration(new SimpleDividerItemDecoration(SelectorActivity.this));
 
         if (getIntent().hasExtra(CODE)) {
             String code = getIntent().getStringExtra(CODE);
@@ -57,10 +60,12 @@ public class SelectorActivity extends AppCompatActivity {
 
         } else if (getIntent().hasExtra(NAME)) {
             name = getIntent().getStringExtra(NAME);
+            new SearchName().execute();
         }
     }
 
     private class SearchEAN extends AsyncTask<String, Void, Void> {
+
         private static final String EAN_URL = "http://eandata.com/feed/?v=3&keycode=6F75725455E71813&mode=json&find=";
 
         @Override
@@ -69,9 +74,7 @@ public class SelectorActivity extends AppCompatActivity {
                 Request request = new Request.Builder()
                         .url(EAN_URL + params[0])
                         .build();
-
                 Response response = client.newCall(request).execute();
-
 
                 try {
                     JSONObject product = new JSONObject(response.body().string()).getJSONObject("product");
@@ -120,12 +123,27 @@ public class SelectorActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-            new SearchName().execute();
-            Log.d("asdasdasd",name);
+            if (name != null) {
+                new SearchName().execute();
+
+            } else {
+                new MaterialDialog.Builder(SelectorActivity.this)
+                        .title(R.string.dialog_noproduct_title)
+                        .content(R.string.dialog_noproduct_content)
+                        .positiveText(R.string.dialog_button_continue)
+                        .callback(new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                                SelectorActivity.this.finish();
+                            }
+                        })
+                        .show();
+            }
         }
     }
 
-    private class SearchName extends AsyncTask<Void, Void, Void> {
+    private class SearchName extends AsyncTask<Void, Void, Void> implements ResultAdapter.OnItemClickResultListener {
+
         private final static String URL_SEARCH = "http://api.nal.usda.gov/ndb/search/?format=json&api_key=OQoY8dgeIGkJb471pqm5Gf6s3mZx31cQt9zCcLrb&q=";
 
         @Override
@@ -134,9 +152,7 @@ public class SelectorActivity extends AppCompatActivity {
                 Request request = new Request.Builder()
                         .url(URL_SEARCH + name)
                         .build();
-
                 Response response = client.newCall(request).execute();
-
 
                 try {
                     JSONArray itemsJson = new JSONObject(response.body().string()).getJSONObject("list").getJSONArray("item");
@@ -167,9 +183,31 @@ public class SelectorActivity extends AppCompatActivity {
                 recycler.setVisibility(View.VISIBLE);
                 loading.setVisibility(View.GONE);
 
-                adapter = new ResultAdapter(items);
+                adapter = new ResultAdapter(items, this);
                 recycler.setAdapter(adapter);
+
+            } else {
+                new MaterialDialog.Builder(SelectorActivity.this)
+                        .title(R.string.dialog_noinfo_title)
+                        .content(R.string.dialog_noinfo_content)
+                        .positiveText(R.string.dialog_button_continue)
+                        .callback(new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                                SelectorActivity.this.finish();
+                            }
+                        })
+                        .show();
             }
+        }
+
+        @Override
+        public void OnItemClickResult(Item item) {
+            Intent intent = new Intent(SelectorActivity.this, DetailActivity.class);
+            intent.putExtra(DetailActivity.PROD_CODE, item.getNdbno());
+            intent.putExtra(DetailActivity.PROD_IMG, image);
+            intent.putExtra(DetailActivity.BARCODE, barcodeImg);
+            startActivity(intent);
         }
     }
 }

@@ -61,9 +61,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .input(R.string.dialog_hint, R.string.dialog_prefill, new MaterialDialog.InputCallback() {
                             @Override
                             public void onInput(MaterialDialog dialog, CharSequence input) {
-                                if (!TextUtils.isEmpty(input)) {
+                                if (!TextUtils.isEmpty(input.toString())) {
                                     Intent intent = new Intent(MainActivity.this, SelectorActivity.class);
-                                    intent.putExtra(SelectorActivity.NAME, input);
+                                    intent.putExtra(SelectorActivity.NAME, input.toString());
                                     startActivity(intent);
                                     collapseFab();
                                 }

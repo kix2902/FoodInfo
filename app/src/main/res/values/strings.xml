@@ -5,4 +5,9 @@
     <string name="dialog_content">Type the name of the food to search</string>
     <string name="dialog_title">Search</string>
     <string name="label_selector">Select product</string>
+    <string name="dialog_noinfo_title">No info</string>
+    <string name="dialog_noinfo_content">We have no info about this product</string>
+    <string name="dialog_button_continue">Continue</string>
+    <string name="dialog_noproduct_title">No product found</string>
+    <string name="dialog_noproduct_content">No product found for this barcode</string>
 </resources>
