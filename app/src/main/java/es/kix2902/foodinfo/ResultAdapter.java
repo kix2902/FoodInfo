@@ -8,12 +8,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import es.kix2902.foodinfo.data.Product;
+
 public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.ItemViewHolder> {
 
     private OnItemClickResultListener mListener;
 
     public interface OnItemClickResultListener {
-        public void OnItemClickResult(Item item);
+        public void OnItemClickResult(Product product);
     }
 
     public class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -26,16 +28,16 @@ public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.ItemViewHo
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.OnItemClickResult(items.get(getAdapterPosition()));
+                    mListener.OnItemClickResult(products.get(getAdapterPosition()));
                 }
             });
         }
     }
 
-    private ArrayList<Item> items;
+    private ArrayList<Product> products;
 
-    public ResultAdapter(ArrayList<Item> items, OnItemClickResultListener listener) {
-        this.items = items;
+    public ResultAdapter(ArrayList<Product> products, OnItemClickResultListener listener) {
+        this.products = products;
         this.mListener = listener;
     }
 
@@ -47,11 +49,11 @@ public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.ItemViewHo
 
     @Override
     public void onBindViewHolder(ResultAdapter.ItemViewHolder holder, int position) {
-        holder.textView.setText(items.get(position).getName());
+        holder.textView.setText(products.get(position).getName());
     }
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return products.size();
     }
 }

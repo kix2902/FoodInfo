@@ -3,10 +3,12 @@ package es.kix2902.foodinfo;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -22,15 +24,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class SelectorActivity extends AppCompatActivity {
+import es.kix2902.foodinfo.data.Product;
+import es.kix2902.foodinfo.helpers.SimpleDividerItemDecoration;
+
+public class SelectorActivity extends AppCompatActivity implements ResultAdapter.OnItemClickResultListener {
 
     public static final String NAME = "name";
     public static final String CODE = "code";
 
     private OkHttpClient client;
 
-    private String name, image, barcodeImg;
-    private ArrayList<Item> items;
+    private String name;
+    private ArrayList<Product> products;
 
     private RecyclerView recycler;
     private ResultAdapter adapter;
@@ -43,10 +48,16 @@ public class SelectorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_selector);
 
         client = new OkHttpClient();
-        items = new ArrayList<>();
+        products = new ArrayList<>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         loading = (ProgressBar) findViewById(R.id.loading);
 
@@ -54,14 +65,39 @@ public class SelectorActivity extends AppCompatActivity {
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.addItemDecoration(new SimpleDividerItemDecoration(SelectorActivity.this));
 
-        if (getIntent().hasExtra(CODE)) {
-            String code = getIntent().getStringExtra(CODE);
-            new SearchEAN().execute(code);
+        if (getIntent().getExtras() != null) {
+            if (getIntent().hasExtra(CODE)) {
+                String code = getIntent().getStringExtra(CODE);
+                new SearchEAN().execute(code);
 
-        } else if (getIntent().hasExtra(NAME)) {
-            name = getIntent().getStringExtra(NAME);
-            new SearchName().execute();
+            } else if (getIntent().hasExtra(NAME)) {
+                name = getIntent().getStringExtra(NAME);
+                new SearchName().execute();
+            }
+
+        } else {
+            finish();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void OnItemClickResult(Product product) {
+        Intent intent = new Intent(SelectorActivity.this, DetailActivity.class);
+        intent.putExtra(DetailActivity.PROD_NAME, product.getName());
+        intent.putExtra(DetailActivity.PROD_CODE, product.getNdbno());
+        startActivity(intent);
     }
 
     private class SearchEAN extends AsyncTask<String, Void, Void> {
@@ -91,21 +127,6 @@ public class SelectorActivity extends AppCompatActivity {
                     if ((name.contains("(")) && (name.contains(")"))) {
                         if (name.indexOf("(") < name.indexOf(")")) {
                             name = name.substring(name.indexOf("("), name.indexOf(")"));
-                        }
-                    }
-
-                    if (product.has("image")) {
-                        image = product.getString("image");
-                    }
-
-                    if (product.has("barcode")) {
-                        JSONObject barcode = product.getJSONObject("barcode");
-                        if (barcode.has("EAN13")) {
-                            barcodeImg = barcode.getString("EAN13");
-                        } else if (barcode.has("UPCA")) {
-                            barcodeImg = barcode.getString("UPCA");
-                        } else if (barcode.has("UPCB")) {
-                            barcodeImg = barcode.getString("UPCB");
                         }
                     }
 
@@ -142,7 +163,7 @@ public class SelectorActivity extends AppCompatActivity {
         }
     }
 
-    private class SearchName extends AsyncTask<Void, Void, Void> implements ResultAdapter.OnItemClickResultListener {
+    private class SearchName extends AsyncTask<Void, Void, Void> {
 
         private final static String URL_SEARCH = "http://api.nal.usda.gov/ndb/search/?format=json&api_key=OQoY8dgeIGkJb471pqm5Gf6s3mZx31cQt9zCcLrb&q=";
 
@@ -159,10 +180,10 @@ public class SelectorActivity extends AppCompatActivity {
 
                     for (int i = 0; i < itemsJson.length(); i++) {
                         JSONObject itemJson = itemsJson.getJSONObject(i);
-                        Item item = new Item();
-                        item.setName(itemJson.getString("name"));
-                        item.setNdbno(itemJson.getString("ndbno"));
-                        items.add(item);
+                        Product product = new Product();
+                        product.setName(itemJson.getString("name"));
+                        product.setNdbno(itemJson.getString("ndbno"));
+                        products.add(product);
                     }
 
                 } catch (JSONException e) {
@@ -179,11 +200,11 @@ public class SelectorActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-            if (items.size() > 0) {
+            if (products.size() > 0) {
                 recycler.setVisibility(View.VISIBLE);
                 loading.setVisibility(View.GONE);
 
-                adapter = new ResultAdapter(items, this);
+                adapter = new ResultAdapter(products, SelectorActivity.this);
                 recycler.setAdapter(adapter);
 
             } else {
@@ -199,15 +220,6 @@ public class SelectorActivity extends AppCompatActivity {
                         })
                         .show();
             }
-        }
-
-        @Override
-        public void OnItemClickResult(Item item) {
-            Intent intent = new Intent(SelectorActivity.this, DetailActivity.class);
-            intent.putExtra(DetailActivity.PROD_CODE, item.getNdbno());
-            intent.putExtra(DetailActivity.PROD_IMG, image);
-            intent.putExtra(DetailActivity.BARCODE, barcodeImg);
-            startActivity(intent);
         }
     }
 }

@@ -1,6 +1,6 @@
-package es.kix2902.foodinfo;
+package es.kix2902.foodinfo.data;
 
-public class Item {
+public class Product {
     private String name;
     private String ndbno;
 

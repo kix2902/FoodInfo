@@ -10,4 +10,10 @@
     <string name="dialog_button_continue">Continue</string>
     <string name="dialog_noproduct_title">No product found</string>
     <string name="dialog_noproduct_content">No product found for this barcode</string>
+    <string name="dialog_nonutrients_title">No nutrients</string>
+    <string name="dialog_nonutrients_content">We haven\'t found any nutrient for this product</string>
+    <string name="img_product_description">image of the product</string>
+    <string name="nutrient_table_name_title">Name</string>
+    <string name="nutrient_table_value_title">Value <i>(per 100g)</i></string>
+    <string name="empty">No data saved in the history.\nStart using this app touching the bottom right button and searching by product name or barcode</string>
 </resources>

@@ -13,16 +13,30 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
+        app:contentInsetLeft="72dp"
+        app:contentInsetStart="72dp"
         tools:ignore="UnusedAttribute" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
+        <es.kix2902.foodinfo.helpers.EmptyRecyclerView
             android:id="@+id/recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="80dp"
+            android:drawableBottom="@drawable/arrow"
+            android:gravity="center"
+            android:maxWidth="300dp"
+            android:text="@string/empty" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fabSearch"
