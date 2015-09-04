@@ -18,7 +18,12 @@
         <activity
             android:name=".SelectorActivity"
             android:label="@string/label_selector" />
-        <activity android:name=".DetailActivity"/>
+        <activity android:name=".DetailActivity" />
+
+        <provider
+            android:name=".database.FoodContentProvider"
+            android:authorities="es.kix2902.foodinfo.provider"
+            android:exported="false" />
     </application>
 
 </manifest>
