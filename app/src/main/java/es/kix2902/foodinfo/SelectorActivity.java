@@ -123,10 +123,11 @@ public class SelectorActivity extends AppCompatActivity implements ResultAdapter
                             name = attributes.getString("product");
                         }
                     }
-
-                    if ((name.contains("(")) && (name.contains(")"))) {
-                        if (name.indexOf("(") < name.indexOf(")")) {
-                            name = name.substring(name.indexOf("("), name.indexOf(")"));
+                    if (name != null) {
+                        if ((name.contains("(")) && (name.contains(")"))) {
+                            if (name.indexOf("(") < name.indexOf(")")) {
+                                name = name.substring(name.indexOf("("), name.indexOf(")"));
+                            }
                         }
                     }
 
